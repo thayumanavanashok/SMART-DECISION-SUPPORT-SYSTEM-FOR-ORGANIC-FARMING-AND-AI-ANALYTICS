@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Weather & Advisory - Organic Farming{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold mb-2">Weather & Agricultural Advisory</h1>
+        <p class="text-gray-600">Real-time weather data and farming recommendations</p>
+    </div>
+
+    <!-- Current Weather Card -->
+    {% if weather and weather.current %}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Main Weather -->
+        <div class="lg:col-span-2 bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-lg shadow-lg p-8">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold">{{ weather.current.location.city }}</h2>
+                    <p class="text-blue-100">{{ weather.current.location.country }}</p>
+                </div>
+                <div class="text-6xl">
+                    <span id="weatherIcon">🌤️</span>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <div class="text-5xl font-bold mb-2">{{ weather.current.current.temperature }}°C</div>
+                    <p class="text-blue-100">{{ weather.current.current.description }}</p>
+                    <p class="text-sm text-blue-100 mt-2">Feels like {{ weather.current.current.feels_like }}°C</p>
+                </div>
+                <div class="space-y-2 text-sm">
+                    <div class="bg-white bg-opacity-20 rounded p-2">
+                        <span class="text-blue-100">Humidity:</span> {{ weather.current.current.humidity }}%
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded p-2">
+                        <span class="text-blue-100">Pressure:</span> {{ weather.current.current.pressure }} hPa
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded p-2">
+                        <span class="text-blue-100">Wind Speed:</span> {{ weather.current.wind.speed }} m/s
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded p-2">
+                        <span class="text-blue-100">Visibility:</span> {{ (weather.current.visibility / 1000)|round(2) }} km
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-blue-100">Sunrise</p>
+                    <p class="font-semibold">{{ weather.current.sunrise | slice(11, 19) if weather.current.sunrise else 'N/A' }}</p>
+                </div>
+                <div>
+                    <p class="text-blue-100">Sunset</p>
+                    <p class="font-semibold">{{ weather.current.sunset | slice(11, 19) if weather.current.sunset else 'N/A' }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Temperature Range -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <h3 class="font-bold text-lg mb-4">🌡️ Temperature</h3>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-sm text-gray-600">Maximum</p>
+                    <p class="text-2xl font-bold text-red-600">{{ weather.current.current.temp_max }}°C</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Minimum</p>
+                    <p class="text-2xl font-bold text-blue-600">{{ weather.current.current.temp_min }}°C</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Current</p>
+                    <p class="text-2xl font-bold text-green-600">{{ weather.current.current.temperature }}°C</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Advisory -->
+    {% if advisory and advisory.advisories %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-6">⚠️ Agricultural Advisory</h2>
+        
+        <div class="space-y-4">
+            {% for alert in advisory.advisories %}
+            <div class="border-l-4 {% if alert.alert == 'HIGH' %}border-red-500 bg-red-50{% elif alert.alert == 'WARNING' %}border-yellow-500 bg-yellow-50{% else %}border-blue-500 bg-blue-50{% endif %} p-4 rounded">
+                <div class="flex items-start">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <span class="font-bold text-lg">{{ alert.category }}</span>
+                            <span class="px-2 py-1 rounded text-xs font-bold {% if alert.alert == 'HIGH' %}bg-red-200 text-red-800{% elif alert.alert == 'WARNING' %}bg-yellow-200 text-yellow-800{% else %}bg-blue-200 text-blue-800{% endif %}">
+                                {{ alert.alert }}
+                            </span>
+                        </div>
+                        <p class="text-gray-700 mb-3">{{ alert.message }}</p>
+                        <div>
+                            <p class="text-sm font-semibold text-gray-600 mb-2">Recommended Actions:</p>
+                            <ul class="text-sm space-y-1">
+                                {% for action in alert.actions %}
+                                <li class="text-gray-700 flex items-start">
+                                    <span class="mr-2">✓</span>
+                                    <span>{{ action }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- 7-Day Forecast -->
+    {% if weather.forecast and weather.forecast.forecasts %}
+    <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-6">📅 7-Day Forecast</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for forecast in weather.forecast.forecasts | slice(0, 32, 8) %}
+            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-4 border border-gray-200">
+                <p class="font-bold text-sm text-gray-600 mb-3">
+                    {{ forecast.timestamp | slice(5, 10) }} {{ forecast.timestamp | slice(11, 16) }}
+                </p>
+                <div class="text-3xl mb-2">
+                    {% if 'rain' in forecast.description.lower() %}🌧️
+                    {% elif 'cloud' in forecast.description.lower() %}☁️
+                    {% elif 'sun' in forecast.description.lower() %}☀️
+                    {% else %}🌤️{% endif %}
+                </div>
+                <p class="text-lg font-bold text-gray-800 mb-2">{{ forecast.temperature }}°C</p>
+                <p class="text-xs text-gray-600 capitalize mb-2">{{ forecast.description }}</p>
+                <div class="space-y-1 text-xs text-gray-700">
+                    <p>💧 Humidity: {{ forecast.humidity }}%</p>
+                    <p>💨 Wind: {{ forecast.wind_speed }} m/s</p>
+                    {% if forecast.rain_probability > 0 %}
+                    <p class="text-red-600 font-semibold">🌧️ Rain: {{ forecast.rain_probability|int }}%</p>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Farming Guidance -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-gradient-to-br from-green-50 to-blue-50 rounded-lg p-6 border-l-4 border-green-500">
+            <h3 class="text-lg font-bold mb-3">🌱 Today's Farming Tips</h3>
+            <ul class="text-sm space-y-2 text-gray-700">
+                {% if weather.current.current.humidity > 80 %}
+                <li>✓ High humidity - Monitor for fungal diseases</li>
+                <li>✓ Improve field ventilation</li>
+                {% elif weather.current.current.humidity < 40 %}
+                <li>✓ Low humidity - Increase irrigation frequency</li>
+                <li>✓ Mulch fields to retain moisture</li>
+                {% else %}
+                <li>✓ Humidity levels are optimal for most crops</li>
+                {% endif %}
+                
+                {% if weather.current.wind.speed > 20 %}
+                <li>✓ Strong winds - Secure tall crops and equipment</li>
+                {% endif %}
+                
+                {% if weather.current.rainfall %}
+                <li>✓ Recent rainfall detected - Excellent for crops</li>
+                <li>✓ Reduce irrigation schedule</li>
+                {% endif %}
+            </ul>
+        </div>
+
+        <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg p-6 border-l-4 border-yellow-500">
+            <h3 class="text-lg font-bold mb-3">⚡ Optimization Strategy</h3>
+            <ul class="text-sm space-y-2 text-gray-700">
+                <li>✓ Harvest early morning for best results</li>
+                <li>✓ Avoid field work during extreme heat</li>
+                <li>✓ Monitor soil moisture regularly</li>
+                <li>✓ Plan irrigation based on forecast</li>
+                <li>✓ Use shade cloth if needed during peak heat</li>
+                <li>✓ Check pest activity during wet periods</li>
+            </ul>
+        </div>
+    </div>
+
+{% else %}
+    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+        <p class="text-yellow-800 text-lg">Unable to load weather data. Please ensure your farm profile includes location information.</p>
+    </div>
+{% endif %}
+
+</div>
+
+<script>
+// Update weather icon based on conditions
+function updateWeatherIcon() {
+    const description = '{{ weather.current.current.description }}' if weather and weather.current else '';
+    const icon = document.getElementById('weatherIcon');
+    
+    if (description) {
+        if (description.toLowerCase().includes('rain')) icon.textContent = '🌧️';
+        else if (description.toLowerCase().includes('cloud')) icon.textContent = '☁️';
+        else if (description.toLowerCase().includes('clear') || description.toLowerCase().includes('sunny')) icon.textContent = '☀️';
+        else icon.textContent = '🌤️';
+    }
+}
+
+updateWeatherIcon();
+</script>
+{% endblock %}

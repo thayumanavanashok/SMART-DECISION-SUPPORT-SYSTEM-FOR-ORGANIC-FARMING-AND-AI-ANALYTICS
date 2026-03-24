@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">AI-Powered Crop Suggestions</h1>
+        
+        {% if farm_data %}
+        <div class="mb-6 p-4 bg-green-50 rounded-lg">
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">Your Farm Profile</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <p class="text-gray-600">Soil Type: <span class="font-medium">{{ farm_data.soilType }}</span></p>
+                    <p class="text-gray-600">Land Size: <span class="font-medium">{{ farm_data.landSize }} acres</span></p>
+                </div>
+                <div>
+                    <p class="text-gray-600">Location: <span class="font-medium">{{ farm_data.location }}</span></p>
+                    <p class="text-gray-600">Water: <span class="font-medium">{{ farm_data.waterAvailability }}</span></p>
+                </div>
+            </div>
+            {% if farm_data.issues %}
+            <div class="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+                <div class="flex items-center space-x-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-yellow-600"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <span class="font-medium text-yellow-700">Reported Issues:</span>
+                </div>
+                <p class="mt-1 text-yellow-600">{{ farm_data.issues }}</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if loading %}
+        <div class="flex items-center justify-center py-12">
+            <svg class="animate-spin h-8 w-8 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="ml-2 text-gray-600">Analyzing your farm data...</span>
+        </div>
+        {% elif error %}
+        <div class="text-center py-8">
+            <p class="text-red-600">{{ error }}</p>
+            <a href="{{ url_for('index') }}" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">
+                Try Again
+            </a>
+        </div>
+        {% else %}
+        <div class="space-y-6">
+            {% for crop in suggestions %}
+            <div class="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-green-600"><path d="M18 8c0-4.4-3.6-8-8-8S2 3.6 2 8c0 2.4.9 4.6 2.8 6.2L2 22l8-2.5c.8.1 1.6.2 2.4.2 4.4 0 8-3.6 8-8Z"/><path d="M10.5 5.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="M13.5 8.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="m7 13 2.8-2.8a2 2 0 0 1 2.8 0L15 13"/></svg>
+                        <h3 class="text-xl font-semibold text-gray-800">{{ crop.name }}</h3>
+                    </div>
+                    <div class="bg-green-100 text-green-800 px-3 py-1 rounded-full">
+                        {{ crop.confidence }}% Match
+                    </div>
+                </div>
+
+                <p class="text-gray-600 mb-4">{{ crop.description }}</p>
+
+                <div class="grid grid-cols-3 gap-4 text-sm mb-4">
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-blue-500"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0L12 2.69z"></path></svg>
+                        <span>Water: {{ crop.waterNeeds }}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-yellow-500"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                        <span>Sun: {{ crop.sunlight }}</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-red-500"><path d="M12 2a5 5 0 0 0-5 5v6.5a3.5 3.5 0 0 0 7 0V7a5 5 0 0 0-5-5z"></path><path d="M12 2v20"></path></svg>
+                        <span>Temp: {{ crop.temperature }}</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
+                    <div class="p-3 bg-gradient-to-br from-emerald-50 to-green-50 rounded-lg border-l-4 border-green-600">
+                        <h4 class="font-bold text-green-900 mb-2">💰 Market Price (Farmer Rate)</h4>
+                        {% if crop.marketPrice and crop.marketPrice.min is not none and crop.marketPrice.max is not none %}
+                        <p class="text-lg font-bold text-green-700">₹{{ crop.marketPrice.min|round(2) }}–{{ crop.marketPrice.max|round(2) }}/{{ crop.marketPrice.unit or 'kg' }}</p>
+                        <p class="text-xs text-gray-600 mt-1">Source: {{ crop.marketPrice.source or 'market' }}{% if crop.marketPrice.updated_at %} | Updated: {{ crop.marketPrice.updated_at[:19].replace('T', ' ') }}{% endif %}</p>
+                        {% else %}
+                        <p class="text-lg font-bold text-gray-500">Price unavailable</p>
+                        <p class="text-xs text-gray-600 mt-1">Could not fetch current mandi data for this crop</p>
+                        {% endif %}
+                    </div>
+                    <div class="p-3 bg-gradient-to-br from-yellow-50 to-amber-50 rounded-lg border-l-4 border-amber-600">
+                        <h4 class="font-bold text-amber-900 mb-2">📈 Market Snapshot</h4>
+                        {% if crop.marketPrice and crop.marketPrice.avg is not none %}
+                        <p class="text-sm text-amber-800">Average: <strong>₹{{ crop.marketPrice.avg|round(2) }}/{{ crop.marketPrice.unit or 'kg' }}</strong></p>
+                        {% else %}
+                        <p class="text-sm text-amber-800">Average: <strong>Not available</strong></p>
+                        {% endif %}
+                        <p class="text-xs text-gray-600 mt-1">Currency: {{ crop.marketPrice.currency if crop.marketPrice else 'INR' }}</p>
+                    </div>
+                </div>
+
+                <button
+                    onclick="toggleGuide('{{ crop.name }}')"
+                    class="w-full flex items-center justify-center space-x-2 bg-green-100 text-green-700 py-2 px-4 rounded-md hover:bg-green-200 transition-colors"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M10 20.5c.5-2.5.8-5 0-7.5-1.8-5.5-3.5-11 5-11 8.5 0 6.8 5.5 5 11-.8 2.5-.5 5 0 7.5"></path><path d="M12 21c-2.5-.5-5-.8-7.5-0"></path></svg>
+                    <span id="button-text-{{ crop.name }}">View Organic Farming Guide</span>
+                    <svg id="button-arrow-{{ crop.name }}" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4 ml-2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </button>
+
+                <div id="guide-{{ crop.name }}" class="hidden mt-4 p-4 bg-green-50 rounded-lg">
+                    <h4 class="font-semibold text-lg mb-4">Organic Farming Guide for {{ crop.name }}</h4>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <h5 class="font-medium text-green-800 mb-2">1. Soil Preparation</h5>
+                            <ol class="list-decimal list-inside space-y-2">
+                                {% for step in crop.organicGuide.preparation %}
+                                <li class="text-gray-700">{{ step }}</li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+
+                        <div>
+                            <h5 class="font-medium text-green-800 mb-2">2. Planting Process</h5>
+                            <ol class="list-decimal list-inside space-y-2">
+                                {% for step in crop.organicGuide.planting %}
+                                <li class="text-gray-700">{{ step }}</li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+
+                        <div>
+                            <h5 class="font-medium text-green-800 mb-2">3. Maintenance & Care</h5>
+                            <ol class="list-decimal list-inside space-y-2">
+                                {% for step in crop.organicGuide.maintenance %}
+                                <li class="text-gray-700">{{ step }}</li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+
+                        <div>
+                            <h5 class="font-medium text-green-800 mb-2">4. Harvesting Guide</h5>
+                            <ol class="list-decimal list-inside space-y-2">
+                                {% for step in crop.organicGuide.harvesting %}
+                                <li class="text-gray-700">{{ step }}</li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+
+                        {% if farm_data.issues %}
+                        <div class="bg-yellow-50 p-4 rounded-lg">
+                            <h5 class="font-medium text-yellow-800 mb-2">Organic Solutions for Your Issues</h5>
+                            <div class="space-y-2 text-gray-700">
+                                <p>Based on your reported issues, here are organic solutions:</p>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Use companion planting with pest-repelling herbs</li>
+                                    <li>Apply organic compost tea for plant health</li>
+                                    <li>Introduce beneficial insects for pest control</li>
+                                    <li>Use neem oil or other natural pesticides</li>
+                                </ul>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="mt-6 flex justify-end">
+            <a href="{{ url_for('farm_intelligence_route') }}" class="inline-flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-md hover:bg-emerald-700 transition-colors">
+                <span>Open Farm Intelligence Dashboard</span>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleGuide(cropName) {
+        const guide = document.getElementById(`guide-${cropName}`);
+        const buttonText = document.getElementById(`button-text-${cropName}`);
+        const buttonArrow = document.getElementById(`button-arrow-${cropName}`);
+        
+        if (guide.classList.contains('hidden')) {
+            guide.classList.remove('hidden');
+            buttonText.textContent = 'Hide Organic Farming Guide';
+            buttonArrow.innerHTML = '<polyline points="18 15 12 9 6 15"></polyline>';
+        } else {
+            guide.classList.add('hidden');
+            buttonText.textContent = 'View Organic Farming Guide';
+            buttonArrow.innerHTML = '<polyline points="6 9 12 15 18 9"></polyline>';
+        }
+    }
+</script>
+{% endblock %}

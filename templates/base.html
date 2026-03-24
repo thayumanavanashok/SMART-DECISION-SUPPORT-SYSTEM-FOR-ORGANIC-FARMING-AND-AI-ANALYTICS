@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmAssist</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/tailwind.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="background-color: #f0fdf4; background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23a7f3d0\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E'); background-attachment: fixed;">
+    <div class="min-h-screen bg-white/30 backdrop-blur-sm">
+        <nav class="bg-white/80 shadow-lg backdrop-blur-md sticky top-0 z-10">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between h-16">
+                    <div class="flex items-center">
+                        <a href="{{ url_for('index') }}" class="flex items-center space-x-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-8 w-8 text-green-600"><path d="M18 8c0-4.4-3.6-8-8-8S2 3.6 2 8c0 2.4.9 4.6 2.8 6.2L2 22l8-2.5c.8.1 1.6.2 2.4.2 4.4 0 8-3.6 8-8Z"/><path d="M10.5 5.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="M13.5 8.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="m7 13 2.8-2.8a2 2 0 0 1 2.8 0L15 13"/></svg>
+                            <span class="text-xl font-bold text-gray-800">FarmAssist</span>
+                        </a>
+                    </div>
+                    <div class="hidden md:flex md:items-center md:space-x-6">
+                        <a href="{{ url_for('index') }}" class="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M18 8c0-4.4-3.6-8-8-8S2 3.6 2 8c0 2.4.9 4.6 2.8 6.2L2 22l8-2.5c.8.1 1.6.2 2.4.2 4.4 0 8-3.6 8-8Z"/><path d="M10.5 5.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="M13.5 8.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="m7 13 2.8-2.8a2 2 0 0 1 2.8 0L15 13"/></svg>
+                            <span>Data Input</span>
+                        </a>
+                        <a href="{{ url_for('crop_suggestions') }}" class="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M18 8c0-4.4-3.6-8-8-8S2 3.6 2 8c0 2.4.9 4.6 2.8 6.2L2 22l8-2.5c.8.1 1.6.2 2.4.2 4.4 0 8-3.6 8-8Z"/><path d="M10.5 5.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="M13.5 8.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1Z"/><path d="m7 13 2.8-2.8a2 2 0 0 1 2.8 0L15 13"/></svg>
+                            <span>Crop Suggestions</span>
+                        </a>
+                        <a href="{{ url_for('chatbot') }}" class="flex items-center space-x-2 px-3 py-2 rounded-md text-gray-700 hover:text-green-600 hover:bg-green-50 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <span>AI Assistant</span>
+                        </a>
+                    </div>
+                    <div class="hidden md:flex items-center space-x-1">
+                        <a href="{{ url_for('index') }}" class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300">Home</a>
+                        <a href="{{ url_for('crop_suggestions') }}" class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300">Crop Suggestions</a>
+                        <a href="{{ url_for('farm_intelligence_route') }}" class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300">Farm Intelligence</a>
+                        <a href="{{ url_for('chatbot') }}" class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300">Chatbot</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</body>
+</html>

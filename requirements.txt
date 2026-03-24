@@ -1,0 +1,7 @@
+Flask
+google-generativeai
+python-dotenv
+requests
+beautifulsoup4
+selenium
+pytest

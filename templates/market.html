@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Market Prices - Organic Farming{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold mb-2">Agricultural Market Prices</h1>
+        <p class="text-gray-600">Real-time market prices for your crops</p>
+    </div>
+
+    <!-- Search Section -->
+    <div class="mb-8">
+        <div class="flex gap-4 mb-6">
+            <input 
+                type="text" 
+                id="cropSearch" 
+                placeholder="Search for a crop..." 
+                class="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+            <button 
+                onclick="searchCropPrice()" 
+                class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+            >
+                Search Price
+            </button>
+        </div>
+    </div>
+
+    <!-- Featured Crops Prices -->
+    {% if prices %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {% for crop, price in prices.items() %}
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
+            <h3 class="text-xl font-bold text-green-700 mb-2 capitalize">{{ crop }}</h3>
+            {% if price %}
+                <div class="space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Min Price:</span>
+                        <span class="font-semibold">₹{{ price.get('min', 'N/A') }} {{ price.get('unit', '/kg') }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Max Price:</span>
+                        <span class="font-semibold">₹{{ price.get('max', 'N/A') }} {{ price.get('unit', '/kg') }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                        <span class="text-gray-600">Avg Price:</span>
+                        <span class="font-semibold">₹{{ price.get('avg', 'N/A') }} {{ price.get('unit', '/kg') }}</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-3">
+                        Source: {{ price.get('source', 'Market Data') }}
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-gray-500">No price data available</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+        <p class="text-blue-800">No crops in your farm profile. Create a farm profile first to see market prices.</p>
+    </div>
+    {% endif %}
+
+    <!-- Search Results -->
+    <div id="searchResults" class="bg-white rounded-lg shadow-md p-6 hidden">
+        <h2 class="text-2xl font-bold mb-4">Search Results</h2>
+        <div id="priceDetails" class="space-y-4"></div>
+    </div>
+
+    <!-- Recent Market Data -->
+    <div class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 mt-8">
+        <h2 class="text-2xl font-bold mb-4">Market Insights</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <h3 class="font-bold mb-2">💡 Market Tips</h3>
+                <ul class="text-sm space-y-2 text-gray-700">
+                    <li>• Check prices daily for best selling window</li>
+                    <li>• Early morning sales often fetch premium prices</li>
+                    <li>• Grade your produce for higher market value</li>
+                    <li>• Connect with local buyer collectives</li>
+                    <li>• Organic certification adds 40-100% premium</li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="font-bold mb-2">📊 Price Strategy</h3>
+                <ul class="text-sm space-y-2 text-gray-700">
+                    <li>• Monitor seasonal price trends</li>
+                    <li>• Store properly to sell post-season at higher rates</li>
+                    <li>• Compare prices across multiple mandis</li>
+                    <li>• Direct sales reduce intermediary costs</li>
+                    <li>• Value addition (drying, processing) increases profit</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function searchCropPrice() {
+    const cropName = document.getElementById('cropSearch').value.trim();
+    
+    if (!cropName) {
+        alert('Please enter a crop name');
+        return;
+    }
+    
+    fetch(`/api/price-summary/${cropName}`)
+        .then(response => response.json())
+        .then(data => {
+            const searchResults = document.getElementById('searchResults');
+            const priceDetails = document.getElementById('priceDetails');
+            
+            if (data.error) {
+                priceDetails.innerHTML = `<p class="text-red-600">${data.error}</p>`;
+            } else {
+                priceDetails.innerHTML = `
+                    <div class="border-l-4 border-green-500 pl-4">
+                        <h3 class="text-lg font-bold capitalize">${data.crop}</h3>
+                        <div class="mt-3 space-y-2">
+                            <p><strong>Min Price:</strong> ₹${data.current_price_range.min} ${data.current_price_range.unit}</p>
+                            <p><strong>Max Price:</strong> ₹${data.current_price_range.max} ${data.current_price_range.unit}</p>
+                            <p><strong>Avg Price:</strong> ₹${data.current_price_range.avg} ${data.current_price_range.unit}</p>
+                            <p><strong>Source:</strong> ${data.source}</p>
+                            <p><strong>Last Updated:</strong> ${data.last_updated_seconds_ago ? data.last_updated_seconds_ago + ' seconds ago' : 'Just now'}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            searchResults.classList.remove('hidden');
+            searchResults.scrollIntoView({ behavior: 'smooth' });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error fetching price data');
+        });
+}
+
+// Allow searching with Enter key
+document.getElementById('cropSearch').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchCropPrice();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farm Intelligence - Organic Farming</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-gray-100">
+    {% extends "base.html" %}
+    {% block content %}
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-green-800 mb-6">Farm Intelligence Dashboard</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Data Acquisition -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">1. Consolidated Data</h2>
+                <div class="space-y-3">
+                    <div>
+                        <h3 class="font-bold">Soil Characteristics:</h3>
+                        <p>Type: <span class="font-medium">{{ unified_context.farm_profile.soil_type or 'N/A' }}</span></p>
+                        <p>pH: <span class="font-medium">{{ unified_context.farm_profile.soil_ph or 'N/A' }}</span></p>
+                        <p>Nutrients: <span class="font-medium">{{ unified_context.farm_profile.soil_nutrients or 'N/A' }}</span></p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold">Weather Conditions:</h3>
+                        {% set weather = unified_context.weather or {} %}
+                        {% set current_weather = weather.current or {} %}
+                        <p>Temperature: <span class="font-medium">{{ current_weather.temperature_c or 'N/A' }}°C</span></p>
+                        <p>Humidity: <span class="font-medium">{{ current_weather.humidity_pct or 'N/A' }}%</span></p>
+                        <p>Precipitation: <span class="font-medium">{{ current_weather.precipitation_mm or 'N/A' }} mm</span></p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold">Crop Health:</h3>
+                        {% set health = unified_context.crop_health or {} %}
+                        <p>Health Score: <span class="font-medium">{{ health.health_score or 0 }}/100</span></p>
+                        <p>Risk Level: <span class="font-medium uppercase">{{ health.risk_level or 'N/A' }}</span></p>
+                        {% if health.alerts %}
+                        <p class="text-sm text-red-600">Alerts:
+                            {% for alert in health.alerts %}
+                                <br/>• {{ alert }}
+                            {% endfor %}
+                        </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI-Based Analysis -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">2. AI-Generated Intelligence</h2>
+                <div class="space-y-3">
+                    <div>
+                        <h3 class="font-bold">Patterns:</h3>
+                        {% if intelligence.patterns %}
+                        <ul class="list-disc list-inside text-sm space-y-1">
+                            {% for item in intelligence.patterns %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p>No patterns detected</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 class="font-bold">Risks:</h3>
+                        {% if intelligence.risks %}
+                        <ul class="list-disc list-inside text-sm space-y-1">
+                            {% for item in intelligence.risks %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p>No risks detected</p>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h3 class="font-bold">Opportunities:</h3>
+                        {% if intelligence.opportunities %}
+                        <ul class="list-disc list-inside text-sm space-y-1">
+                            {% for item in intelligence.opportunities %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p>No opportunities identified</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Smart Recommendations -->
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">3. Smart Recommendations</h2>
+                {% if structured_recommendations %}
+                <div class="space-y-4">
+                    <div>
+                        <h3 class="font-bold text-green-800">🌾 Recommended Crops:</h3>
+                        <ul class="list-disc list-inside space-y-1 text-sm">
+                            {% for crop in structured_recommendations.crop_selection %}
+                            <li>{{ crop }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-blue-800">🐛 Pest & Disease Management:</h3>
+                        <ul class="list-disc list-inside space-y-1 text-sm">
+                            {% for item in structured_recommendations.organic_pest_disease_plan %}
+                            <li>{{ item }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-yellow-800">⏱️ Harvest Timing:</h3>
+                        <p class="text-sm">{{ structured_recommendations.harvest_timing }}</p>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-emerald-800">💰 Selling Strategy:</h3>
+                        <p class="text-sm">{{ structured_recommendations.selling_timing }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <p class="text-gray-600">Recommendations loading...</p>
+                {% endif %}
+            </div>
+
+            <!-- Decision Support -->
+            <div class="bg-white p-6 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-3">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">4. Decision Support & Optimization</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-4">
+                    <div class="p-4 bg-blue-100 rounded-lg">
+                        <h3 class="font-bold text-blue-800">Decision Readiness</h3>
+                        <p class="text-2xl font-bold text-blue-900">{{ unified_context.derived_metrics.decision_readiness_score or 60 }}/100</p>
+                    </div>
+                    <div class="p-4 bg-yellow-100 rounded-lg">
+                        <h3 class="font-bold text-yellow-800">Risk Level</h3>
+                        <p class="text-lg font-bold text-yellow-900 uppercase">{{ decision_support.risk_level or 'Moderate' }}</p>
+                    </div>
+                    <div class="p-4 bg-green-100 rounded-lg">
+                        <h3 class="font-bold text-green-800">Sustainability Score</h3>
+                        <p class="text-2xl font-bold text-green-900">{{ decision_support.sustainability_score or 60 }}/100</p>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-bold mb-2">Priority Actions:</h3>
+                    {% if decision_support.priority_actions %}
+                    <ol class="list-decimal list-inside space-y-1 text-sm">
+                        {% for action in decision_support.priority_actions %}
+                        <li>{{ action }}</li>
+                        {% endfor %}
+                    </ol>
+                    {% else %}
+                    <p class="text-gray-600 text-sm">No priority actions</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Market Prices & Selling Strategy -->
+            <div class="bg-white p-6 rounded-lg shadow-md col-span-1 md:col-span-2 lg:col-span-3">
+                <h2 class="text-2xl font-semibold text-gray-700 mb-4">5. Market Prices & Farmer-Friendly Selling Tips</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% if structured_recommendations and structured_recommendations.market_prices %}
+                        {% for crop_name, price_data in structured_recommendations.market_prices.items() %}
+                        <div class="border-l-4 border-green-600 p-4 bg-gradient-to-br from-green-50 to-white rounded-lg">
+                            <h3 class="text-xl font-bold text-green-900 mb-3">{{ price_data.crop_name }}</h3>
+                            
+                            <div class="space-y-2 mb-4 text-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-semibold text-gray-700">Current Price Range:</span>
+                                    <span class="text-lg font-bold text-green-700">₹{{ price_data.price_min }}-{{ price_data.price_max }}/{{ price_data.unit }}</span>
+                                </div>
+                                <div class="mt-3 p-2 bg-blue-50 rounded">
+                                    <p class="text-xs text-gray-600"><span class="font-semibold">Source:</span> {{ price_data.source or 'unknown' }}</p>
+                                    <p class="text-xs text-gray-600"><span class="font-semibold">Updated:</span> {{ price_data.updated_at or 'N/A' }}</p>
+                                </div>
+                            </div>
+
+                            <div class="text-xs text-gray-500">
+                                <p><span class="font-semibold">Average:</span> {{ price_data.price_avg if price_data.price_avg is not none else 'N/A' }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="col-span-1 md:col-span-2 lg:col-span-3 p-4 bg-gray-50 rounded-lg text-gray-600">
+                        <p>No real-time market price data available.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+</body>
+</html>
