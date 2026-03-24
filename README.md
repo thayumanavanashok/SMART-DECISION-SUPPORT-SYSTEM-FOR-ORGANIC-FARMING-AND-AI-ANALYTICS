@@ -1,83 +1,133 @@
 # Organic Farming Intelligence Platform
 
-This project provides an integrated intelligence workflow for organic farming decisions.
+Flask-based decision support platform for organic farming.
 
-## Core Modules
+It combines farm profile input, weather data, live market prices, and Gemini-powered crop suggestions into a single workflow.
 
-1. Data Acquisition
-- Captures farm profile from user input (soil type, pH, nutrients, land size, location, water, historical crops, issues).
-- Fetches location-aware weather conditions and 5-day forecast from Open-Meteo.
-- Estimates crop-health signals from reported issues and farm constraints.
+## What This App Does
 
-2. AI-Based Analysis and Intelligence Generation
-- Builds a unified context from all available data streams.
-- Performs AI-assisted analysis (Gemini, when API key is available) with robust local fallback logic.
-- Produces interpretable outputs: patterns, risks, opportunities, and priority actions.
+- Captures farm profile details (soil, land size, location, water, previous crops, issues).
+- Generates crop suggestions using Gemini and enriches each suggestion with live market price data.
+- Builds a farm intelligence dashboard with unified context, risks, weather, and recommendation actions.
+- Provides weather endpoints and advisories for Indian farm locations.
+- Supports state and district selection for India via local location metadata.
 
-3. Smart Recommendation Engine
-- Recommends suitable crops based on soil and water conditions.
-- Generates organic pest and disease management actions.
-- Suggests harvesting and selling timing aligned with weather and seasonal demand hints.
+## Tech Stack
 
-4. Decision Support and Farm Management Optimization
-- Computes readiness and risk indicators.
-- Surfaces priority actions for proactive farm operations.
-- Emphasizes sustainability and resource-efficiency under organic farming principles.
+- Backend: Flask
+- AI: Gemini REST API
+- Weather: OpenWeather (UI/weather routes) and Open-Meteo (farm intelligence metrics)
+- Market data: Agmarknet v1 + Data.gov fallback path
+- Frontend styles: Tailwind CSS (local build, no CDN dependency)
+- Testing: Pytest
 
-5. User Interface and Visualization Layer
-- Dashboard view consolidates all outputs into a single decision interface.
-- Includes weather forecast table, intelligence summaries, recommendation cards, and optimization metrics.
+## Project Structure
 
-## Capability Mapping (Implemented)
+- app.py: Flask routes and page rendering
+- gemini.py: Crop suggestions and chatbot generation through Gemini REST
+- farm_intelligence.py: Unified analysis and decision support payload
+- market_scraper.py: Live market price retrieval and normalization
+- weather_api.py: Weather and India location metadata helpers
+- templates/: HTML templates
+- static/css/: Tailwind input and generated CSS
+- tests/: Unit, integration, API, and UI tests
 
-1. Data Acquisition and Consolidation
-- Input layer captures soil, location, nutrients, water availability, and field issues.
-- Weather data is fetched via Open-Meteo geocoding + forecast APIs.
-- Crop health is estimated through field issue and constraint-based screening.
-- Source status and completeness metrics are shown in the intelligence dashboard.
+## Prerequisites
 
-2. AI-Based Analysis and Intelligence Generation
-- Unified context combines all available farm signals into one analysis object.
-- Gemini analysis is used when configured; robust local fallback analysis always runs.
-- Intelligence output includes patterns, risks, opportunities, and explainability notes.
+- Python 3.10+
+- Node.js 18+ (for Tailwind build)
 
-3. Smart Recommendation Engine
-- Recommends crops based on soil suitability and water constraints.
-- Provides organic pest and disease management steps.
-- Suggests harvesting and selling timing based on weather and seasonal logic.
+## Setup
 
-4. Decision Support and Farm Management Optimization
-- Decision readiness and operational risk scores are computed automatically.
-- Priority actions are surfaced for proactive farm operations.
-- Resource efficiency hints enforce low-input, organic-first practices.
+1. Create and activate a virtual environment.
 
-5. User Interface and Visualization Layer
-- Dedicated Farm Intelligence Dashboard presents all modules in one flow.
-- Structured recommendation blocks and 5-day weather table improve interpretability.
-- JSON API endpoint enables external monitoring and integration use cases.
+```bash
+python -m venv .venv
+source .venv/bin/activate
+```
 
-## API Endpoint
-
-- `GET /api/farm_intelligence`
-	- Returns unified context, AI intelligence, recommendations, and decision-support payload from the current farm session.
-	- Use this endpoint for integrating mobile apps, reporting tools, or external dashboards.
-
-## Run Locally
-
-1. Install dependencies:
+2. Install Python dependencies.
 
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Add Gemini API key to `.env` (optional but recommended):
+3. Install frontend build dependencies.
 
-```env
-VITE_GEMINI_API_KEY=your_key_here
+```bash
+npm install
 ```
 
-3. Start the app:
+4. Configure environment variables in .env.
+
+```env
+VITE_GEMINI_API_KEY=your_gemini_api_key
+GEMINI_MODEL=gemini-2.5-flash
+DATA_GOV_API_KEY=optional_data_gov_key
+```
+
+Notes:
+- VITE_GEMINI_API_KEY or GEMINI_API_KEY is required for crop suggestions.
+- If Gemini is not configured, suggestions endpoint/page returns a real-time data unavailable message.
+
+## Run
+
+Start Flask app:
 
 ```bash
 python app.py
 ```
+
+Build Tailwind CSS once:
+
+```bash
+npm run build:css
+```
+
+Watch Tailwind during development:
+
+```bash
+npm run watch:css
+```
+
+Default app URL: http://localhost:5000
+
+## Main Pages
+
+- /: Farm profile form
+- /suggestions: Gemini crop suggestions with live market values
+- /farm_intelligence: Unified dashboard and decision support
+- /market: Market price lookup view
+- /weather: Weather and advisory page
+- /chatbot: AI farming assistant
+
+## API Endpoints
+
+Farm intelligence:
+- GET /api/farm_intelligence
+
+Market data:
+- GET /api/market-price/<crop_name>
+- POST /api/market-prices
+- GET /api/price-summary/<crop_name>
+
+Weather and location:
+- GET /api/weather
+- GET /api/weather/city/<city_name>
+- GET /api/weather/advisory
+- GET /api/weather/locations/india?q=<query>&limit=<n>
+- GET /api/india/states-districts
+
+## Test
+
+Run all tests:
+
+```bash
+pytest
+```
+
+## Data Behavior
+
+- The app is configured for live-data-first behavior.
+- Market prices are fetched from external public APIs and can be unavailable intermittently.
+- When live sources are unavailable, endpoints return explicit no-data/error responses instead of synthetic values.
